@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html ng-app="mvc">
+    <head>
+        <title>Angular To-Do</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="bootswatch.min.css" >
+        <script src="todos.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
+        <script>
+            angular
+                .module("mvc", [])
+                .controller("todoCtrl", function($scope) {
+                    $scope.data = todos;
+
+                    $scope.views = ["all", "active", "completed"];
+                    $scope.selection = "all";
+                    $scope.selectionFilter = {};
+
+                    $scope.addTodo = function(){
+                      var newTodo = {
+                        text: $scope.todoText,
+                        finished: false
+                      }
+                      $scope.data.push(newTodo);
+                      document.getElementById("todoText").value = "";
+                    };
+
+                    $scope.changeSelection = function(newSelection){
+                      $scope.selection = newSelection;
+                      switch (newSelection){
+                        case "active":
+                          $scope.selectionFilter = {finished:false};
+                          break;
+                        case "completed":
+                          $scope.selectionFilter = {finished:true};
+                          break;
+                        default:
+                          $scope.selectionFilter = {};
+                          break;
+                      }
+                    };
+
+                    $scope.deleteTodo = function(todo){
+                      var index = $scope.data.indexOf(todo);
+                      if (index > -1) {
+                        $scope.data.splice(index,1);
+                      }
+                    };
+                });
+
+            //do i need this function any more?
+            function add(todo) {
+                var controller = document.querySelector("[ng-controller=todoCtrl]");
+                var scope = angular.element(controller).scope();
+                scope.$apply(function() {
+                  scope.data.push(todo);
+                });
+            }
+        </script>
+    </head>
+    <body>
+      <div ng-controller="todoCtrl" class="container">
+        <div class="jumbotron text-center">
+          <h2>Challenge 4 - AngularJS To-Do List</h2>
+          <p class="lead">Jordan Brennan - CS 4830</p>
+        </div>
+
+        <div class="well col-md-6 col-md-push-3">
+
+          <!-- Type Selection -->
+          <div class="row text-center">
+            <div class="btn-group btn-group-justified">
+              <a ng-repeat="v in views" ng-class="(selection==v)?'btn btn-success':'btn btn-default'" ng-click="changeSelection(v)">{{v}}</a>
+            </div>
+          </div>
+          <br/>
+
+          <!-- Add new To-Do's -->
+          <div class="row">
+            <form ng-submit="addTodo()" class="col-md-8 col-md-push-2">
+  						<input class="col-md-12" id="todoText" placeholder="Add a To-Do" ng-model="todoText" >
+  					</form>
+          </div>
+          <br/>
+
+          <!-- View Table -->
+          <div>
+              <table class="table table-hover table-striped">
+                <tr ng-repeat="t in data | filter:selectionFilter ">
+                  <td>
+                    <label><input type="checkbox" ng-model="t.finished" >  {{t.text}}</label>
+                  </td>
+                  <td><a class="btn btn-default" ng-Click="deleteTodo(t)">Delete</a></td>
+                </tr>
+              </table>
+          </div>
+          <br/>
+
+          <!--Progress bar-->
+          <div class="progress progress-striped">
+            <div class="progress-bar progress-bar-success"
+            style="width: {{(data | filter:{finished:true}).length/data.length*100}}%"></div>
+          </div>
+
+        </div>
+      </div>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    </body>
+</html>
